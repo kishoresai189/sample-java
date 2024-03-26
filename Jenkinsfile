@@ -3,15 +3,17 @@ pipeline {
 
     stages {
         stage('Build') {
-            when {
-                // Define the condition for triggering the build
-                branch 'main'
-                branch 'master'
-                branch 'feature/*'
-            }
             steps {
-                sh 'mvn clean install'
+                script {
+                    def branchName = env.BRANCH_NAME ?: 'master'
+                    if (branchName == 'main' || branchName == 'master' || branchName.startsWith('feature/')) {
+                        sh 'mvn clean install'
+                    } else {
+                        echo "Skipping build for branch: ${branchName}"
+                    }
+                }
             }
         }
     }
 }
+
